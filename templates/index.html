@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsGenAI - Smart Bangla News Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Header with Navigation -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="fa-solid fa-robot"></i> NewsGenAI
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#about" data-bs-toggle="modal" data-bs-target="#aboutModal">About</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Section -->
+    <section class="hero py-5" data-aos="fade-up">
+        <div class="container">
+            <div class="card shadow-lg">
+                <div class="card-header text-center">
+                    <h2 class="display-6">AI News Generator</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8 mx-auto">
+                            <form id="summarizeForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Paste News Content</label>
+                                    <textarea class="form-control" id="inputText" rows="6" required></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Select Output Type</label>
+                                    <select class="form-select" id="outputType">
+                                        <option value="title">Generate Title</option>
+                                        <option value="summary">Generate Summary</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <span id="buttonText">Generate</span>
+                                    <div id="loadingSpinner" class="spinner-border text-light d-none" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </button>
+                            </form>
+                            
+                            <div id="resultSection" class="mt-4 d-none">
+                                <h4 class="result-title mb-3"></h4>
+                                <div class="result-content card p-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features py-5 bg-light" data-aos="fade-up" data-aos-delay="100">
+        <div class="container">
+            <h2 class="text-center mb-5">Why Choose NewsGenAI?</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature text-center p-4">
+                        <i class="fas fa-bolt fa-3x mb-3"></i>
+                        <h3>Instant Processing</h3>
+                        <p>Get results in seconds with our powerful AI engine</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature text-center p-4">
+                        <i class="fas fa-language fa-3x mb-3"></i>
+                        <h3>Bangla NLP</h3>
+                        <p>Specialized in Bengali language processing</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature text-center p-4">
+                        <i class="fas fa-shield-alt fa-3x mb-3"></i>
+                        <h3>Secure Processing</h3>
+                        <p>Your data is never stored or shared</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5>Contact Us</h5>
+                    <p>Email: contact@newsgenai.com</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-inline">
+                        <li class="list-inline-item"><a href="#privacy" class="text-white">Privacy Policy</a></li>
+                        <li class="list-inline-item"><a href="#terms" class="text-white">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Follow Us</h5>
+                    <div class="social-icons">
+                        <a href="#" class="text-white me-2"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <p>&copy; 2024 NewsGenAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- About Modal -->
+    <div class="modal fade" id="aboutModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">About NewsGenAI</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h5>Data Collection Policy</h5>
+                    <p>We collect and process news content solely for generating summaries and titles. All data is:</p>
+                    <ul>
+                        <li>Processed securely with encryption</li>
+                        <li>Not stored after processing</li>
+                        <li>Used only for intended AI processing</li>
+                    </ul>
+                    <h5>How It Works</h5>
+                    <p>Our AI analyzes text using advanced NLP models trained on Bangla news datasets...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

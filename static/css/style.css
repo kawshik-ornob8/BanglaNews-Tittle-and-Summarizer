@@ -1,0 +1,89 @@
+:root {
+    --primary-color: #4facfe;
+    --secondary-color: #00f2fe;
+    --accent-color: #ff6b6b;
+    --text-color: #333;
+    --background-color: #fff;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.hero {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+}
+
+.card {
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.form-control,
+.form-select {
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    border: none;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+}
+
+.btn-primary:hover {
+    background-color: #ff8787;
+}
+
+.feature {
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.feature:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.result-content {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-family: 'Noto Sans Bengali', sans-serif;
+}
+
+#loadingSpinner {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-width: 2px;
+}
+
+.modal-content {
+    border-radius: 15px;
+}
+
+.error-toast .toast-content {
+    background: #dc3545;
+    color: white;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .hero .card {
+        margin: 15px;
+    }
+    .feature {
+        margin-bottom: 1.5rem;
+    }
+}
