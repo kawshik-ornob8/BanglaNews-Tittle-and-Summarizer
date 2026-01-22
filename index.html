@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NewsGenAI – Bangla News Title & Summarizer | Kawshik</title>
+    <meta name="description" content="Smart, fast, and privacy-conscious Bangla news title generation and summarization with a modern web UI built on Flask.">
+    <meta name="keywords" content="Bangla NLP, News Summarizer, Flask, Python, Transformers, AI, Machine Learning, Kawshik Projects">
+    <meta name="author" content="Kawshik">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* =========================================
+           CSS Variables (Blue/Indigo Theme for News App)
+        ========================================== */
+        :root {
+            --primary-color: #4f46e5; /* Indigo-600 */
+            --primary-hover: #4338ca; /* Indigo-700 */
+            --accent-color: #3b82f6;  /* Blue-500 */
+            --bg-color: #ffffff;
+            --text-color: #1f2937;
+            --text-muted: #4b5563;
+            --card-bg: #f9fafb;
+            --border-color: #e5e7eb;
+            --code-bg: #111827; /* Dark Gray/Black */
+            --code-text: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --radius: 12px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --card-bg: #1e293b;
+            --border-color: #374151;
+            --code-bg: #020617;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+        
+        /* Floating Navigation Buttons */
+        .float-btn {
+            position: fixed;
+            top: 20px;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            font-size: 1.1rem;
+        }
+        .float-btn:hover { transform: scale(1.1); border-color: var(--primary-color); color: var(--primary-color); }
+        .back-home { left: 20px; }
+        .theme-toggle { right: 20px; }
+
+        /* Layout */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-padding { padding: 80px 0; }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin: 0 auto 3rem auto;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-top: 80px;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            /* Gradient for Title */
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero-desc {
+            max-width: 700px;
+            margin: 20px auto 35px;
+            font-size: 1.125rem;
+            color: var(--text-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.4);
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+
+        /* Overview Content */
+        .overview-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            font-size: 1.05rem;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .feature-card h3 { margin-bottom: 10px; font-weight: 600; }
+        .feature-card p { font-size: 0.95rem; color: var(--text-muted); }
+
+        /* Code & Terminal Section */
+        .terminal-window {
+            background: var(--code-bg);
+            border-radius: var(--radius);
+            border: 1px solid #374151;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .terminal-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #374151;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #10b981; }
+
+        .code-block {
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            color: var(--code-text);
+            font-size: 0.85rem;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+
+        .code-comment { color: #6b7280; font-style: italic; }
+        .code-command { color: #60a5fa; } /* Blue for commands */
+        .code-string { color: #a5f3fc; }  /* Cyan for strings */
+        .code-keyword { color: #c084fc; } /* Purple for keywords */
+        .code-func { color: #fcd34d; }    /* Yellow for functions */
+
+        /* Two Column Layout for Code */
+        .dual-code-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        
+        @media(min-width: 900px) {
+            .dual-code-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Tech Badges */
+        .tech-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .tech-badge {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .container { padding: 0 16px; }
+            .section-padding { padding: 50px 0; }
+            .hero-content h1 { font-size: 2.5rem; }
+            .btn-group { flex-direction: column; gap: 12px; }
+            .btn { width: 100%; }
+            .float-btn { top: 15px; width: 40px; height: 40px; font-size: 1rem; }
+            .back-home { left: 15px; }
+            .theme-toggle { right: 15px; }
+        }
+
+        .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border-color); color: var(--text-muted); margin-top: 40px; font-size: 0.9rem; }
+    </style>
+</head>
+<body class="light-mode">
+
+    <a href="https://kawshik.dev" class="float-btn back-home" aria-label="Back to Portfolio">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <button id="theme-toggle" class="float-btn theme-toggle" aria-label="Toggle Dark Mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <header class="hero fade-in">
+        <div class="container hero-content">
+            <h1>NewsGenAI</h1>
+            <h2>Bangla News Title & Summarizer</h2>
+            <p class="hero-desc">
+                Smart, fast, and privacy-conscious Bangla news title generation and summarization with a modern web UI built on Flask.
+            </p>
+            <div class="btn-group">
+                <a href="https://github.com/kawshik-ornob8/NewsGenAI" class="btn btn-primary" target="_blank">
+                    <i class="fab fa-github"></i> View on GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="section-padding container fade-in">
+        <h2 class="section-title">Overview</h2>
+        <div class="overview-content">
+            <p>
+                <strong>NewsGenAI</strong> addresses the need for quick information consumption in Bengali media. It allows users to paste lengthy articles and instantly receive a catchy headline or a concise abstractive summary.
+            </p>
+            <br>
+            <p>
+                The project is built with a focus on privacy and speed. It features a responsive Flask-based backend that can run in-memory mock logic for demos or plug into powerful Transformers (mT5/BanglaT5) for production-grade NLP tasks.
+            </p>
+        </div>
+    </section>
+
+    <section class="section-padding container fade-in">
+        <h2 class="section-title">Key Features</h2>
+        <p class="section-subtitle">What makes NewsGenAI special.</p>
+        
+        <div class="features-grid">
+            <article class="feature-card">
+                <i class="fas fa-heading feature-icon"></i>
+                <h3>Dual Mode</h3>
+                <p>Switch instantly between generating catchy <strong>Titles</strong> or detailed <strong>Summaries</strong> from the same text input.</p>
+            </article>
+
+            <article class="feature-card">
+                <i class="fas fa-user-shield feature-icon"></i>
+                <h3>Privacy First</h3>
+                <p>Input text is processed in-memory. No databases are used, ensuring no user data is ever stored or logged.</p>
+            </article>
+
+            <article class="feature-card">
+                <i class="fas fa-laptop-code feature-icon"></i>
+                <h3>Clean UI & UX</h3>
+                <p>Built with Bootstrap 5 and AOS for smooth animations, typing effects, and instant visual feedback.</p>
+            </article>
+
+            <article class="feature-card">
+                <i class="fas fa-brain feature-icon"></i>
+                <h3>AI Extensibility</h3>
+                <p>Designed with a plug-in architecture to easily swap mock logic with Hugging Face Transformers models.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="section-padding container fade-in">
+        <h2 class="section-title">Quick Start</h2>
+        <p class="section-subtitle">Get the app running in minutes.</p>
+
+        <div class="dual-code-grid">
+            <div>
+                <h3 style="margin-bottom: 15px; font-weight: 600;">1. Setup & Install</h3>
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <div class="dot dot-red"></div>
+                        <div class="dot dot-yellow"></div>
+                        <div class="dot dot-green"></div>
+                        <span style="margin-left: 10px; font-size: 0.8rem; color: #9ca3af;">bash</span>
+                    </div>
+                    <div class="code-block">
+                        <span class="code-comment"># Clone repository</span><br>
+                        <span class="code-command">git clone</span> https://github.com/kawshik-ornob8/NewsGenAI.git<br>
+                        <span class="code-command">cd</span> NewsGenAI<br><br>
+                        <span class="code-comment"># Install baseline dependencies</span><br>
+                        <span class="code-command">pip</span> install flask<br><br>
+                        <span class="code-comment"># (Optional) For Real AI Models</span><br>
+                        <span class="code-command">pip</span> install "transformers>=4.36" torch sentencepiece
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 style="margin-bottom: 15px; font-weight: 600;">2. Run Application</h3>
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <div class="dot dot-red"></div>
+                        <div class="dot dot-yellow"></div>
+                        <div class="dot dot-green"></div>
+                        <span style="margin-left: 10px; font-size: 0.8rem; color: #9ca3af;">bash</span>
+                    </div>
+                    <div class="code-block">
+                        <span class="code-comment"># Start the Flask Server</span><br>
+                        <span class="code-command">python</span> app.py<br><br>
+                        <span class="code-comment"># Access in browser:</span><br>
+                        <span class="code-string">http://127.0.0.1:5000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-padding container fade-in" style="background: var(--card-bg); border-radius: var(--radius); padding: 50px 30px; border: 1px solid var(--border-color);">
+        <h2 class="section-title">API Reference</h2>
+        <p class="section-subtitle">The backend exposes a simple REST endpoint.</p>
+
+        <div class="dual-code-grid">
+            <div>
+                <h4 style="margin-bottom: 10px;">POST /predict</h4>
+                <div class="terminal-window">
+                    <div class="terminal-header"><span style="color: #9ca3af; font-size: 0.8rem;">JSON Request</span></div>
+                    <div class="code-block">
+{
+  <span class="code-keyword">"text"</span>: <span class="code-string">"আপনার বাংলা নিউজ কনটেন্ট এখানে দিন ..."</span>,
+  <span class="code-keyword">"type"</span>: <span class="code-string">"title"</span> <span class="code-comment">// or "summary"</span>
+}
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h4 style="margin-bottom: 10px;">Response</h4>
+                <div class="terminal-window">
+                    <div class="terminal-header"><span style="color: #9ca3af; font-size: 0.8rem;">JSON Response</span></div>
+                    <div class="code-block">
+{
+  <span class="code-keyword">"result"</span>: <span class="code-string">"জেনারেটেড টেক্সট ফলাফল..."</span>,
+  <span class="code-keyword">"type"</span>: <span class="code-string">"Title"</span>,
+  <span class="code-keyword">"time"</span>: <span class="code-string">"0.42s"</span>
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-padding container fade-in">
+        <h2 class="section-title">Real Model Integration</h2>
+        <p class="section-subtitle">Replace mock logic with Transformers in <code>app.py</code></p>
+        
+        <div class="terminal-window" style="max-width: 850px; margin: 0 auto;">
+            <div class="terminal-header">
+                <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+                <span style="margin-left: 10px; font-size: 0.8rem; color: #9ca3af;">python</span>
+            </div>
+            <div class="code-block">
+<span class="code-keyword">from</span> transformers <span class="code-keyword">import</span> AutoTokenizer, AutoModelForSeq2SeqLM
+<span class="code-keyword">import</span> torch
+
+<span class="code-comment"># Load mT5 Model optimized for Summarization</span>
+MODEL_NAME = <span class="code-string">"csebuetnlp/mT5_multilingual_XLSum"</span>
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME).to(device)
+
+<span class="code-keyword">def</span> <span class="code-func">generate_text</span>(text, task_prefix=<span class="code-string">"summarize:"</span>):
+    inputs = tokenizer(
+        f<span class="code-string">"{task_prefix} {text}"</span>, return_tensors=<span class="code-string">"pt"</span>, truncation=<span class="code-keyword">True</span>
+    ).to(device)
+
+    outputs = model.generate(
+        **inputs, 
+        max_length=80, 
+        num_beams=4, 
+        no_repeat_ngram_size=2
+    )
+    <span class="code-keyword">return</span> tokenizer.decode(outputs[0], skip_special_tokens=<span class="code-keyword">True</span>)
+            </div>
+        </div>
+    </section>
+
+    <section class="section-padding container fade-in">
+        <h2 class="section-title">Tech Stack</h2>
+        <div class="tech-container">
+            <div class="tech-badge"><i class="fab fa-python"></i> Python 3.9+</div>
+            <div class="tech-badge"><i class="fas fa-server"></i> Flask</div>
+            <div class="tech-badge"><i class="fab fa-bootstrap"></i> Bootstrap 5</div>
+            <div class="tech-badge"><i class="fas fa-brain"></i> Hugging Face Transformers</div>
+            <div class="tech-badge"><i class="fas fa-microchip"></i> PyTorch</div>
+        </div>
+    </section>
+
+    <footer class="fade-in">
+        <p>&copy; 2026 Kawshik. MIT Licensed.</p>
+        <p style="margin-top: 10px;">
+            <a href="https://github.com/kawshik-ornob8/NewsGenAI" target="_blank" style="margin-right: 15px;">Repository</a>
+            <a href="mailto:contact@kawshik.dev">Contact</a>
+        </p>
+    </footer>
+
+    <script>
+        // --- Dark Mode Logic ---
+        const toggleButton = document.getElementById('theme-toggle');
+        const icon = toggleButton.querySelector('i');
+        const currentTheme = localStorage.getItem('theme');
+
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+
+        toggleButton.addEventListener('click', () => {
+            let theme = document.documentElement.getAttribute('data-theme');
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        });
+
+        // --- Scroll Animation Logic ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
